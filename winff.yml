@@ -1,0 +1,18 @@
+app: winff-qt
+
+ingredients:
+  dist: stretch
+  sources:
+    - deb http://deb.debian.org/debian/ stretch main
+  exclude:
+    - winff-gtk
+    - ffmpeg
+    - avconv
+    - xterm
+    - libavcodec-extra
+
+script:
+  - mv usr/share/applications/winff.desktop .
+  - convert usr/share/icons/hicolor/scalable/apps/winff.svg -resize 256x256 ./winff.png
+  - mv usr/share/winff/* usr/bin # workaround for cant find presets
+  - ln -s winff-qt usr/bin/winff

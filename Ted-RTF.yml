@@ -1,0 +1,20 @@
+app: ted
+    
+ingredients:
+  dist: precise
+  sources:
+    - deb http://us.archive.ubuntu.com/ubuntu/ precise main universe
+  script:
+    - wget -c "http://$(curl https://www.nllgg.nl/Ted/ 2> /dev/null | grep -Eo 'ftp..*.nl/.*/ted-[0-9.]+-amd64.deb')"
+  packages:
+    - ted
+
+script:
+  - sed -i 's|Icon=/usr/share/Ted/Ted|Icon=Ted|g' usr/share/applications/Ted.desktop
+  - for SIZE in 64x64 48x48 32x32 22x22; do 
+  - cp usr/share/Ted/Ted.png usr/share/icons/hicolor/${SIZE}/apps
+  - mogrify -resize $SIZE usr/share/icons/hicolor/${SIZE}/apps/Ted.png
+  - done
+  - cp usr/share/Ted/Ted.png .
+  - cp usr/share/applications/Ted.desktop .
+  
