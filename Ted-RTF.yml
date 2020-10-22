@@ -5,7 +5,9 @@ ingredients:
   sources:
     - deb http://us.archive.ubuntu.com/ubuntu/ precise main universe
   script:
-    - wget -c "http://$(curl https://www.nllgg.nl/Ted/ 2> /dev/null | grep -Eo 'ftp..*.nl/.*/ted-[0-9.]+-amd64.deb')"
+    - URL="$(curl https://www.nllgg.nl/Ted/ 2> /dev/null | grep -Eo 'ftp..*.nl/.*/ted-[0-9.]+-amd64.deb')"
+    - wget -c "http://$URL"
+    - basename "$URL" | sed -r 's/ted-([0-9.]+)-amd64.deb/\1/g' > VERSION
   packages:
     - ted
 
