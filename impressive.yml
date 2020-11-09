@@ -15,7 +15,7 @@ ingredients:
     - # Fake user agent with -U so sourceforge gives us the smaller Linux download rather than the default big Win32 one with deps and whatnot
     - VERSION=$(basename $(wget -U 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:24.0) Gecko/20100101 Firefox/24.0' https://sourceforge.net/projects/impressive/files/latest/download -O - | grep -o 'https://downloads.sourceforge.net/project/impressive/Impressive/.*/' -m1))
     - echo $VERSION > VERSION
-    - wget -c "http://downloads.sourceforge.net/impressive/Impressive-${VERSION}.tar.gz"
+    - wget "http://downloads.sourceforge.net/impressive/Impressive-${VERSION}.tar.gz"
     - wget -c "https://a.fsdn.com/allura/p/impressive/icon" -O impressive.png
     - tar xvf Impressive-*.tar.gz
 
