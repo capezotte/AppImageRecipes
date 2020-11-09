@@ -22,6 +22,7 @@ ingredients:
 script:
   - cp ../impressive.png usr/share/icons/hicolor/48x48/
   - cp ../impressive.png .
+  - # TODO: Find out why the ./impressive in the tar returns __main__ not found (but meh, it'd save only a few hundred kB, and that's not counting squashfs's compression)
   - cp ../Impressive-*/impressive.py usr/bin/impressive
   - cat > usr/bin/impressive-exec <<\EOF
   - #!/bin/bash
