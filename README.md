@@ -18,3 +18,11 @@ PDF presentation with smooth transitions (like Okular's Ctrl+Shift+P mode, but p
 # Edge-DEV
 
 The edge.yml inside pkg2appimage's github, but with trusty's repo. Extraced .deb traces/breakpoints in my machine, but works fine as an AppImage.
+
+# Slack
+
+Discord clone.
+
+# sK1
+
+Inkscape alternative.
