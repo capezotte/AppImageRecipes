@@ -17,8 +17,9 @@ script:
   - #!/bin/sh
   - set +x
   - HERE="$(dirname "$(readlink -f "${0}")")"
+  - SK1_DIR=`echo "$HERE/usr/lib/sk1-wx-"*`
   - export LD_LIBRARY_PATH="$HERE/lib/x86_64-linux-gnu":"$HERE/usr/lib/x86_64-linux-gnu"
-  - export PYTHONPATH="$HERE/usr/":"$HERE/usr/lib/sk1-wx-2.0rc4"
+  - export PYTHONPATH="$HERE/usr/":"$SK1_DIR"
   - export PATH="$HERE/usr/bin":$PATH
   - exec python2.7 -c 'from sk1 import sk1_run; sk1_run()'
   - EOF
