@@ -28,7 +28,7 @@ script:
   - #!/bin/sh
   - HERE=$(dirname $(readlink -f "${0}"))
   - export LD_LIBRARY_PATH="${HERE}"/usr/lib:$PATH
-  - "${HERE}"/opt/microsoft/msedge-dev/microsoft-edge-dev --password-store=basic $@
+  - exec "${HERE}"/opt/microsoft/msedge-dev/microsoft-edge-dev --password-store=basic "$@"
   - EOF
   - chmod a+x ./AppRun
   - ./opt/microsoft/msedge-dev/microsoft-edge-dev --version | grep -Eo "[0-9.]+" | head -n 1 > ../VERSION

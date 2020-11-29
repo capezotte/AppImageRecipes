@@ -2,7 +2,7 @@
 app: impressive
 
 ingredients:
-  dist: trusty
+  dist: xenial
   sources: 
     - deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe
   packages:
@@ -12,35 +12,34 @@ ingredients:
     - python-pil
     - python-opengl
   script:
-    - # Fake user agent with -U so sourceforge gives us the smaller Linux download rather than the default big Win32 one with deps and whatnot
-    - VERSION=$(basename $(wget -U 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:24.0) Gecko/20100101 Firefox/24.0' https://sourceforge.net/projects/impressive/files/latest/download -O - | grep -o 'https://downloads.sourceforge.net/project/impressive/Impressive/.*/' -m1))
+    - # By default, it gives us the Windows download. Do a WGET spider to check version, then switch to the Linux download.
+    - VERSION=$(LC_ALL=C wget --spider "https://sourceforge.net/projects/impressive/files/latest/download" 2>&1 | grep Location | tail -n1 | sed -r 's/.*Impressive-(.*)-win32.zip.*/\1/g')
     - echo $VERSION > VERSION
-    - wget "http://downloads.sourceforge.net/impressive/Impressive-${VERSION}.tar.gz"
+    - wget "http://downloads.sourceforge.net/impressive/Impressive-${VERSION}.tar.gz" # SourceForge doesn't seem to like the -c option.
     - wget -c "https://a.fsdn.com/allura/p/impressive/icon" -O impressive.png
     - tar xvf Impressive-*.tar.gz
 
 script:
   - cp ../impressive.png usr/share/icons/hicolor/48x48/
   - cp ../impressive.png .
-  - # TODO: Find out why the ./impressive in the tar returns __main__ not found (but meh, it'd save only a few hundred kB, and that's not counting squashfs's compression)
-  - cp ../Impressive-*/impressive.py usr/bin/impressive
-  - cat > usr/bin/impressive-exec <<\EOF
-  - #!/bin/bash
+  - cp ../Impressive-*/impressive.py usr/bin/impressive # TODO: Find out why bundling the .pyc doesn't work.
+  - cat > AppRun <<\EOF
+  - #!/bin/sh
   - set +x
   - HERE="$(dirname "$(readlink -f "${0}")")"
-  - APPDIR=$(readlink -f "$HERE/../../")
-  - export PYTHONPATH="$APPDIR/usr"
-  - export PATH="$APPDIR/usr/bin":$PATH
-  - exec "$APPDIR/usr/bin/python2.7" "$HERE"/impressive "$@"
+  - export LD_LIBRARY_PATH="$HERE/lib/x86_64-linux-gnu":"$HERE/usr/lib/x86_64-linux-gnu"
+  - export PYTHONPATH="$HERE/usr"
+  - export PATH="$HERE/usr/bin":$PATH
+  - exec python2.7 "$HERE"/usr/bin/impressive "$@"
   - EOF
-  - chmod +x usr/bin/impressive-exec
+  - chmod +x AppRun
   - cat > usr/share/applications/impressive.desktop <<\EOF
   - [Desktop Entry]
   - Type=Application
   - Name=Impressive
   - Comment=Display PDF presentation slides with style. 
   - Icon=impressive
-  - Exec=impressive-exec %F
+  - Exec=impressive %F
   - Terminal=false
   - Categories=Office;
   - Keywords=PDF;Presentation;

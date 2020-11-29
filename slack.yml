@@ -1,0 +1,33 @@
+app: Slack
+binpatch: true
+
+ingredients:
+  script:
+    - URL=$(wget -q https://slack.com/intl/pt-br/downloads/instructions/ubuntu -O - | grep -Eo 'href="?https://downloads.slack([A-Za-z-]+)?.com/.*.deb"?' -m1 | tr -d \" | cut -d= -f2)
+    - wget -c "$URL"
+    - sed -r 's/.*slack-desktop-([-A-Za-z0-9.]+)-amd64.deb/\1/g' <<<$URL > VERSION
+  packages:
+    - slack-desktop
+  
+script:
+  - cat > usr/bin/slack-exec <<\EOF
+  - #!/bin/bash
+  - HERE="$(dirname "$(readlink -f "${0}")")"
+  - # https://github.com/AppImage/AppImageKit/issues/1039
+  - if [ $(sysctl kernel.unprivileged_userns_clone | cut -d " " -f 3) != "1" ] ; then
+  -   echo "Working around systems without unprivileged_userns_clone using --no-sandbox"
+  -   exec "${HERE}/slack" "$@" --no-sandbox
+  - else
+  -   exec "${HERE}/slack" "$@"
+  - fi
+  - EOF
+  - chmod +x usr/bin/slack-exec
+  - cp usr/share/pixmaps/slack.png .
+  - cp slack.png usr/share/icons/hicolor/512x512/apps/
+  - for SIZE in 256x256 128x128 64x64 48x48 32x32 22x22; do 
+  - cp slack.png usr/share/icons/hicolor/${SIZE}/apps
+  - mogrify -resize $SIZE usr/share/icons/hicolor/${SIZE}/apps/slack.png
+  - done
+  - sed -e "s:^Exec=/usr/bin/slack:Exec=slack-exec:g" -e "s:^Icon=/usr/share/pixmaps/slack.png:Icon=slack:g" usr/share/applications/slack.desktop > slack.desktop
+  
+

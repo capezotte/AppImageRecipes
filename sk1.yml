@@ -1,0 +1,26 @@
+app: sk1
+
+ingredients:
+  dist: stretch
+  sources:
+    - deb http://deb.debian.org/debian/ stretch main
+  script:
+    - VERSION=$(wget -q 'https://downloads.sk1project.net/sk1/' -O - | grep -B1 nightbuilds | head -n1 | sed -r 's|.*>(.*)/</a>.*|\1|g')
+    - echo "$VERSION" > VERSION
+    - wget -c "https://downloads.sk1project.net/sk1/${VERSION}/python-sk1-${VERSION}_debian_9_amd64.deb"
+  packages:
+    - python-sk1
+
+script:
+  - cp usr/share/applications/sk1.desktop .
+  - cat > AppRun <<\EOF
+  - #!/bin/sh
+  - set +x
+  - HERE="$(dirname "$(readlink -f "${0}")")"
+  - export LD_LIBRARY_PATH="$HERE/lib/x86_64-linux-gnu":"$HERE/usr/lib/x86_64-linux-gnu"
+  - export PYTHONPATH="$HERE/usr/":"$HERE/usr/lib/sk1-wx-2.0rc4"
+  - export PATH="$HERE/usr/bin":$PATH
+  - exec python2.7 -c 'from sk1 import sk1_run; sk1_run()'
+  - EOF
+  - chmod +x AppRun
+  - ( cd usr/lib/wx/python; ln -s wx3.0.pth wx.pth; exit 0; ) # Work around "No module wx found"
