@@ -1,0 +1,59 @@
+app: zenmap-python2
+
+ingredients:
+  dist: stretch
+  sources:
+    - deb http://deb.debian.org/debian/ stretch main
+  script:
+    - DLD=$(wget -q https://nmap.org/download.html -O - | grep -o 'dist/zenmap.*\.noarch\.rpm' | cut -d\" -f1 | head -n1)
+    - wget -c "https://nmap.org/$DLD"
+    - FILE=$(basename "$DLD")
+    - VERSION=$(cut -d- -f1 --complement <<<$FILE | rev | cut -d. -f1-2 --complement | rev)
+    - echo $VERSION > VERSION
+    - wget -c "https://nmap.org/dist/nmap-${VERSION}.x86_64.rpm"
+    - mkdir -p nmap-x
+    - 7z x "$FILE" -aoa
+    - 7z x nmap-${VERSION}.x86_64.rpm -aoa
+    - 7z x "${FILE%.rpm}".cpio -onmap-x -aoa
+    - 7z x nmap-${VERSION}.x86_64.cpio -onmap-x -aoa
+    
+  packages:
+    - python2.7-minimal
+    - python-gtk2
+    - python-gobject
+    - libgcc1
+    - liblinear1
+    - liblua5.2-0
+    - libpcap0.8
+    - libpcre3
+    - libssl1.0.0
+    - libstdc++6
+    - libssh2-1
+
+script:
+  - cp -r ../nmap-x/* .
+  - (
+  - cd usr/lib/
+  - if [ -d python2.6 ]; then
+  -   mv python2.6/* python2.7
+  - fi
+  - cd python2.7
+  - mv site-packages/* dist-packages
+  - cd dist-packages/zenmapCore
+  - sed -i 's|/usr/share/zenmap|/tmp/zenmap-share|g' Paths.py # ugly hack for hardcoded paths
+  - )
+  - chmod -R +x usr/bin # Workaround for 7z not saving rpm perms
+  - cp usr/share/applications/zenmap.desktop .
+  - sed -i 's|Icon=.*|Icon=zenmap|g' zenmap.desktop
+  - cp usr/share/zenmap/pixmaps/zenmap.png .
+  - cat > AppRun <<\EOF
+  - #!/bin/sh
+  - set +x
+  - HERE="$(dirname "$(readlink -f "${0}")")"
+  - export LD_LIBRARY_PATH="$HERE/lib/x86_64-linux-gnu":"$HERE/usr/lib/x86_64-linux-gnu":"$HERE/usr/lib/"
+  - export PYTHONPATH="$HERE/usr/"
+  - export PATH="$HERE/usr/bin":$PATH
+  - ln -sf "$HERE/usr/share/zenmap" /tmp/zenmap-share # ugly hack for hardcoded paths
+  - exec python2.7 -c 'from zenmapGUI.App import run; run()'
+  - EOF
+  - chmod +x AppRun

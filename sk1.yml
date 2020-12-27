@@ -13,14 +13,16 @@ ingredients:
 
 script:
   - cp usr/share/applications/sk1.desktop .
+  - ( cd usr/lib; ln -s sk1-wx-* sk1-wx; )
   - cat > AppRun <<\EOF
   - #!/bin/sh
   - set +x
   - HERE="$(dirname "$(readlink -f "${0}")")"
-  - SK1_DIR=`echo "$HERE/usr/lib/sk1-wx-"*`
-  - export LD_LIBRARY_PATH="$HERE/lib/x86_64-linux-gnu":"$HERE/usr/lib/x86_64-linux-gnu"
-  - export PYTHONPATH="$HERE/usr/":"$SK1_DIR"
+  - export LD_LIBRARY_PATH="$HERE/lib/x86_64-linux-gnu":"$HERE/usr/lib/x86_64-linux-gnu":"$HERE/usr/lib/"
+  - export PYTHONPATH="$HERE/usr/":"$HERE/usr/lib/sk1-wx"
   - export PATH="$HERE/usr/bin":$PATH
+  - # Copy the peruser config dir
+  - if [ ! -d "$HOME"/.zenmap ]; then cp "$HERE"/usr/share/zenmap/config "$HOME"/.zenmap; fi
   - exec python2.7 -c 'from sk1 import sk1_run; sk1_run()'
   - EOF
   - chmod +x AppRun
