@@ -26,3 +26,7 @@ Discord clone.
 # sK1
 
 Inkscape alternative.
+
+# Zenmap
+
+GUI for zenmap. Python 2 was retired in April 2020 and distros - even Debian! - are (rightfully) considering it to be a security risk and (welp) removing it from their repos. This bundles Debian 9's Python 2 with upstream zenmap and nmap. (Zenmap is in a worse situation than I thought - it's still coded with Python 2.6!)
